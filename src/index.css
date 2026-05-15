@@ -1,0 +1,82 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+
+@import "tailwindcss";
+
+/* ── Dark theme baseline ── */
+:root {
+  color-scheme: dark;
+
+  /* Override shadcn CSS variables for dark-only theme */
+  --background: 222 47% 5%;
+  --foreground: 210 40% 98%;
+
+  --card: 222 47% 6%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222 47% 7%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 43 96% 56%;        /* amber-400 */
+  --primary-foreground: 0 0% 0%;
+
+  --secondary: 217 33% 12%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 217 33% 12%;
+  --muted-foreground: 215 20% 45%;
+
+  --accent: 217 33% 14%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 63% 50%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 217 33% 14%;
+  --input: 217 33% 12%;
+  --ring: 43 96% 56%;
+
+  --radius: 0.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #080c14;
+  color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Number input: hide spinners ── */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+/* ── Datetime-local: dark calendar icon ── */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* ── shadcn Select dark popover fix ── */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
