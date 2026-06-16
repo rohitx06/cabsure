@@ -1,0 +1,23 @@
+# Render Blueprint — deploy everything with one click
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: cabsure
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npx vite build && cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cabsure-db
+          property: connectionString
+
+databases:
+  - name: cabsure-db
+    plan: free
+    region: oregon
