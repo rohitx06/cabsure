@@ -7,8 +7,7 @@ services:
     runtime: node
     region: oregon
     plan: free
-    nodeVersion: "20.18.0"
-    buildCommand: "npm install && npm run build && cd server && npm install --production"
+    buildCommand: "npm install --include=dev && npm run build && cd server && npm install --production"
     startCommand: "cd server && node index.js"
     envVars:
       - key: NODE_ENV
