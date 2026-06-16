@@ -8,7 +8,6 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Response interceptor for unified error handling
 api.interceptors.response.use(
   (res) => res.data,
   (err) => {
@@ -20,41 +19,48 @@ api.interceptors.response.use(
   }
 );
 
-/**
- * Fetch overall acceptance stats for an area + app
- * @param {string} pickup_area
- * @param {string} app_name - "Uber" | "Rapido"
- */
+// ── existing (kept for backward compat) ──────────────────────────────────────
 export const getOverallStats = (pickup_area, app_name) =>
   api.get("/api/stats", { params: { pickup_area, app_name } });
 
-/**
- * Fetch time-based stats
- * @param {string} pickup_area
- * @param {string} app_name
- * @param {number} hour - 0-23
- */
 export const getTimeStats = (pickup_area, app_name, hour) =>
   api.get("/api/time-stats", { params: { pickup_area, app_name, hour } });
 
-/**
- * Get recommendation for area + hour
- * @param {string} pickup_area
- * @param {number} hour
- */
-export const getRecommendation = (pickup_area, hour) =>
-  api.get("/api/recommend", { params: { pickup_area, hour } });
-
-/**
- * Submit a ride report
- * @param {Object} payload
- * @param {string} payload.pickup_area
- * @param {string} payload.app_name
- * @param {string} payload.ride_type
- * @param {string} payload.status - "accepted" | "rejected"
- * @param {number} payload.wait_time
- * @param {string} payload.day_of_week
- * @param {string} payload.request_time - ISO string
- */
 export const submitRideReport = (payload) =>
   api.post("/api/ride-report", payload);
+
+// ── new endpoints ─────────────────────────────────────────────────────────────
+
+/** GET /api/stats → { acceptance_rate, total_reports } */
+export const getStats = (pickup_area, app_name) =>
+  api.get("/api/stats", { params: { pickup_area, app_name } });
+
+/**
+ * GET /api/recommend → { recommendedApp, acceptanceRate, avgWaitTime }
+ * Returns null when the backend has no matching data (responds with { message: "No data" }).
+ */
+export const getRecommend = async (pickup_area) => {
+  const data = await api.get("/api/recommend", { params: { pickup_area } });
+  // Backend returns { message: "No data" } when no rows match — treat as null
+  if (!data || data.message || !data.recommendedApp) return null;
+  return data;
+};
+
+/** GET /api/map-data → [{ pickup_area, latitude, longitude, acceptance_rate, total_reports }] */
+export const getMapData = () =>
+  api.get("/api/map-data");
+
+/**
+ * GET /api/peak-hours → { best_hour, acceptance_rate, total_reports }
+ * Returns null when no peak hour data is available.
+ */
+export const getPeakHours = async (pickup_area, app_name) => {
+  const data = await api.get("/api/peak-hours", { params: { pickup_area, app_name } });
+  // Backend returns { best_hour: null, ... } when no rows match HAVING >= 5
+  if (!data || data.best_hour == null) return null;
+  return data;
+};
+
+/** GET /api/recent-reports → [{ id, pickup_area, app_name, status, wait_time, created_at }] */
+export const getRecentReports = () =>
+  api.get("/api/recent-reports");

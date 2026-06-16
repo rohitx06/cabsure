@@ -1,45 +1,58 @@
 // src/components/Navbar.jsx
-import { Badge } from "@/components/ui/badge";
+import { Car, Sun, Moon, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-export default function Navbar() {
+export default function Navbar({ dark, onToggleDark, onToggleSidebar }) {
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#080c14]/90 backdrop-blur-xl border-b border-white/5">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="mx-auto flex h-14 max-w-screen-xl items-center justify-between px-4 sm:px-6">
 
-        {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <span className="text-xl">🚖</span>
-          <span
-            className="text-lg font-bold tracking-tight text-white"
-            style={{ fontFamily: "'DM Mono', monospace" }}
+        {/* Left: Hamburger + Logo */}
+        <div className="flex items-center gap-2">
+          {/* Mobile hamburger — hidden on lg+ */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleSidebar}
+            className="h-8 w-8 lg:hidden"
+            aria-label="Toggle sidebar"
           >
-            Cab<span className="text-amber-400">Sure</span>
+            <Menu className="h-4 w-4" />
+          </Button>
+
+          <Car className="h-5 w-5" />
+          <span className="text-base font-semibold tracking-tight">
+            CabSure
           </span>
-          <Badge
-            variant="outline"
-            className="hidden sm:inline-flex border-amber-400/30 bg-amber-400/10 text-amber-400 text-[10px] tracking-widest uppercase py-0"
-          >
-            Analytics
-          </Badge>
         </div>
 
-        {/* Right side */}
+        {/* Right */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
+          {/* Live dot */}
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
             </span>
-            <span className="text-xs text-slate-400">Live</span>
+            Live
           </div>
-          <Separator orientation="vertical" className="h-4 bg-white/10" />
-          <Badge
-            variant="outline"
-            className="border-white/10 bg-white/5 text-slate-400 text-[10px]"
+
+          <Separator orientation="vertical" className="h-4" />
+
+          {/* Theme toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleDark}
+            className="h-8 w-8"
+            aria-label="Toggle theme"
           >
-            MVP v0.1
-          </Badge>
+            {dark
+              ? <Sun className="h-4 w-4" />
+              : <Moon className="h-4 w-4" />
+            }
+          </Button>
         </div>
       </div>
     </header>

@@ -1,82 +1,261 @@
-/* src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
-
 @import "tailwindcss";
 
-/* ── Dark theme baseline ── */
+/* ── shadcn design tokens: light mode ── */
 :root {
-  color-scheme: dark;
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
 
-  /* Override shadcn CSS variables for dark-only theme */
-  --background: 222 47% 5%;
-  --foreground: 210 40% 98%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
 
-  --card: 222 47% 6%;
-  --card-foreground: 210 40% 98%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
 
-  --popover: 222 47% 7%;
-  --popover-foreground: 210 40% 98%;
+  --primary: 240 5.9% 10%;
+  --primary-foreground: 0 0% 98%;
 
-  --primary: 43 96% 56%;        /* amber-400 */
-  --primary-foreground: 0 0% 0%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
 
-  --secondary: 217 33% 12%;
-  --secondary-foreground: 210 40% 98%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
 
-  --muted: 217 33% 12%;
-  --muted-foreground: 215 20% 45%;
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
 
-  --accent: 217 33% 14%;
-  --accent-foreground: 210 40% 98%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
 
-  --destructive: 0 63% 50%;
-  --destructive-foreground: 210 40% 98%;
-
-  --border: 217 33% 14%;
-  --input: 217 33% 12%;
-  --ring: 43 96% 56%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 240 5.9% 10%;
 
   --radius: 0.5rem;
 }
 
+/* ── Dark mode tokens ── */
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+
+  --primary: 0 0% 98%;
+  --primary-foreground: 240 5.9% 10%;
+
+  --secondary: 240 3.7% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
+}
+
 * {
   box-sizing: border-box;
+  border-color: hsl(var(--border));
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
-  margin: 0;
-  background: #080c14;
-  color: #f8fafc;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Number input: hide spinners ── */
+/* Number input spinners */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
-  margin: 0;
 }
-input[type="number"] { -moz-appearance: textfield; }
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 
-/* ── Datetime-local: dark calendar icon ── */
+/* Datetime picker icon */
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.5);
+  opacity: 0.5;
   cursor: pointer;
 }
-
-/* ── Custom scrollbar ── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.08);
-  border-radius: 99px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.15);
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.4;
 }
 
-/* ── shadcn Select dark popover fix ── */
+/* shadcn popover z-index */
 [data-radix-popper-content-wrapper] {
   z-index: 9999 !important;
+}
+
+/* ── Scrollbar ── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 999px;
+}
+
+.dark .sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Mobile sidebar drawer ── */
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.sidebar-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sidebar-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 50;
+  width: 80%;
+  max-width: 320px;
+  transform: translateX(-100%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  background-color: hsl(var(--background));
+  border-right: 1px solid hsl(var(--border));
+}
+
+.sidebar-drawer.open {
+  transform: translateX(0);
+}
+
+/* ── Leaflet overrides ──
+   Tailwind v4 Preflight resets img max-width, borders, etc.
+   which completely breaks Leaflet tile rendering & controls. */
+
+.leaflet-container {
+  z-index: 0;
+}
+
+.leaflet-container img {
+  max-width: none !important;
+  height: auto;
+}
+
+.leaflet-container .leaflet-tile {
+  width: 256px !important;
+  height: 256px !important;
+}
+
+.leaflet-container .leaflet-control-zoom a {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 18px;
+  text-decoration: none;
+  color: #333;
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+}
+
+.leaflet-container .leaflet-control-zoom {
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.leaflet-container .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.2);
+}
+
+.leaflet-container .leaflet-popup-tip {
+  box-shadow: none;
+}
+
+.leaflet-container a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.leaflet-container .leaflet-control-attribution {
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Dark-mode adjustments for map */
+.dark .leaflet-container .leaflet-control-zoom a {
+  background: hsl(240 10% 10%);
+  color: #e5e5e5;
+  border-bottom-color: hsl(240 3.7% 20%);
+}
+
+.dark .leaflet-container .leaflet-control-zoom {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark .leaflet-container .leaflet-popup-content-wrapper {
+  background: hsl(240 10% 10%);
+  color: #e5e5e5;
+}
+
+.dark .leaflet-container .leaflet-popup-tip {
+  background: hsl(240 10% 10%);
+}
+
+.dark .leaflet-container .leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.5);
+  color: #999;
 }

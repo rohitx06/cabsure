@@ -1,256 +1,217 @@
 // src/components/RideReportForm.jsx
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card, CardContent, CardDescription,
+  CardHeader, CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem,
+  SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  Car, Bike, CheckCircle2, XCircle,
+  AlertTriangle, CircleCheck, Loader2, Send,
+} from "lucide-react";
 import { submitRideReport } from "../services/api";
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const RIDE_TYPES = ["Auto", "Bike", "Mini", "Sedan", "SUV"];
-const APPS = ["Uber", "Rapido"];
+const DAYS       = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const RIDE_TYPES = ["Auto","Bike","Mini","Sedan","SUV"];
+const APP_OPTIONS = [
+  { value: "Uber",   label: "Uber",   Icon: Car  },
+  { value: "Rapido", label: "Rapido", Icon: Bike },
+];
 
-function Field({ label, children }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
-        {label}
-      </Label>
-      {children}
-    </div>
-  );
+function localNow() {
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 
-export default function RideReportForm() {
-  const now = new Date();
-  const localISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
-
+export default function RideReportForm({ onSuccess }) {
+  const d = new Date();
   const [form, setForm] = useState({
     pickup_area: "",
-    app_name: "Uber",
-    ride_type: "Auto",
-    status: "accepted",
-    wait_time: "",
-    day_of_week: DAYS[now.getDay() === 0 ? 6 : now.getDay() - 1],
-    request_time: localISO,
+    app_name:    "Uber",
+    ride_type:   "Auto",
+    status:      "accepted",
+    wait_time:   "",
+    day_of_week: DAYS[d.getDay() === 0 ? 6 : d.getDay() - 1],
+    request_time: localNow(),
   });
+  const [state, setState] = useState({ loading: false, success: false, error: null });
 
-  const [submitState, setSubmitState] = useState({
-    loading: false,
-    success: false,
-    error: null,
-  });
-
-  const setField = (key) => (val) =>
-    setForm((f) => ({ ...f, [key]: val }));
-
-  const setInput = (key) => (e) =>
-    setForm((f) => ({ ...f, [key]: e.target.value }));
+  const sf = (k) => (v) => setForm((f) => ({ ...f, [k]: v }));
+  const si = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitState({ loading: true, success: false, error: null });
+    setState({ loading: true, success: false, error: null });
     try {
       await submitRideReport({
         ...form,
         wait_time: Number(form.wait_time),
         request_time: new Date(form.request_time).toISOString(),
       });
-      setSubmitState({ loading: false, success: true, error: null });
-      // Reset form except area
+      setState({ loading: false, success: true, error: null });
       setForm((f) => ({ ...f, wait_time: "", status: "accepted" }));
-      setTimeout(() => setSubmitState((s) => ({ ...s, success: false })), 3500);
+      onSuccess?.();
+      setTimeout(() => setState((s) => ({ ...s, success: false })), 3500);
     } catch (err) {
-      setSubmitState({ loading: false, success: false, error: err.message });
+      setState({ loading: false, success: false, error: err.message });
     }
   };
 
-  const inputCls =
-    "h-10 bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus-visible:ring-amber-400/50 focus-visible:border-amber-400/40";
-
-  const selectContentCls = "bg-[#0e1420] border-white/10 text-white";
-  const selectItemCls = "focus:bg-white/10 focus:text-white";
-  const triggerCls = "h-10 bg-white/5 border-white/10 text-white focus:ring-amber-400/50";
-
   return (
-    <Card className="bg-white/4 border-white/8 backdrop-blur-sm rounded-2xl">
-      <CardContent className="pt-5 pb-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-1">
-          <div>
-            <p
-              className="text-[10px] uppercase tracking-[0.2em] text-slate-500"
-              style={{ fontFamily: "'DM Mono', monospace" }}
-            >
-              Submit Report
-            </p>
-            <h3 className="mt-0.5 text-base font-semibold text-white">
-              Log a Ride Attempt
-            </h3>
-          </div>
-          <Badge
-            variant="outline"
-            className="border-white/10 bg-white/5 text-slate-400 text-[10px]"
-          >
-            Community Data
-          </Badge>
+    <Card>
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">Log a ride</CardTitle>
+          <Badge variant="secondary">Community</Badge>
         </div>
+        <CardDescription>
+          Help others by submitting your ride experience.
+        </CardDescription>
+      </CardHeader>
 
-        <Separator className="bg-white/8 my-4" />
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          {/* Area */}
+          <div className="space-y-1.5">
+            <Label htmlFor="r-area">Pickup area</Label>
+            <Input
+              id="r-area"
+              placeholder="e.g. Thrissur"
+              value={form.pickup_area}
+              onChange={si("pickup_area")}
+              required
+            />
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Pickup Area */}
-            <Field label="Pickup Area">
-              <Input
-                type="text"
-                placeholder="e.g. Thrissur"
-                value={form.pickup_area}
-                onChange={setInput("pickup_area")}
-                required
-                className={inputCls}
-              />
-            </Field>
-
-            {/* Platform */}
-            <Field label="Platform">
-              <Select value={form.app_name} onValueChange={setField("app_name")}>
-                <SelectTrigger className={triggerCls}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className={selectContentCls}>
-                  {APPS.map((a) => (
-                    <SelectItem key={a} value={a} className={selectItemCls}>
-                      {a === "Uber" ? "🚕 Uber" : "🛵 Rapido"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-
-            {/* Ride Type */}
-            <Field label="Ride Type">
-              <Select value={form.ride_type} onValueChange={setField("ride_type")}>
-                <SelectTrigger className={triggerCls}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className={selectContentCls}>
-                  {RIDE_TYPES.map((t) => (
-                    <SelectItem key={t} value={t} className={selectItemCls}>
-                      {t}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-
-            {/* Status toggle */}
-            <Field label="Status">
-              <div className="flex h-10 gap-1 rounded-md border border-white/10 bg-white/5 p-1">
-                {["accepted", "rejected"].map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setForm((f) => ({ ...f, status: s }))}
-                    className={`flex-1 rounded-sm text-xs font-semibold capitalize transition-all ${
-                      form.status === s
-                        ? s === "accepted"
-                          ? "bg-emerald-500 text-white shadow-sm"
-                          : "bg-rose-500 text-white shadow-sm"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {s}
-                  </button>
+          {/* Platform */}
+          <div className="space-y-1.5">
+            <Label htmlFor="r-app">Platform</Label>
+            <Select value={form.app_name} onValueChange={sf("app_name")}>
+              <SelectTrigger id="r-app" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {APP_OPTIONS.map(({ value, label, Icon }) => (
+                  <SelectItem key={value} value={value}>
+                    <span className="flex items-center gap-2">
+                      <Icon className="h-3.5 w-3.5" /> {label}
+                    </span>
+                  </SelectItem>
                 ))}
-              </div>
-            </Field>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* Wait Time */}
-            <Field label="Wait Time (min)">
-              <Input
-                type="number"
-                placeholder="e.g. 3"
-                min={0}
-                value={form.wait_time}
-                onChange={setInput("wait_time")}
-                required
-                className={inputCls}
-              />
-            </Field>
+          {/* Ride type */}
+          <div className="space-y-1.5">
+            <Label htmlFor="r-type">Ride type</Label>
+            <Select value={form.ride_type} onValueChange={sf("ride_type")}>
+              <SelectTrigger id="r-type" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {RIDE_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* Day of Week */}
-            <Field label="Day of Week">
-              <Select value={form.day_of_week} onValueChange={setField("day_of_week")}>
-                <SelectTrigger className={triggerCls}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className={selectContentCls}>
-                  {DAYS.map((d) => (
-                    <SelectItem key={d} value={d} className={selectItemCls}>
-                      {d}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-
-            {/* Request Time — full width */}
-            <div className="sm:col-span-2">
-              <Field label="Request Time">
-                <Input
-                  type="datetime-local"
-                  value={form.request_time}
-                  onChange={setInput("request_time")}
-                  required
-                  className={`${inputCls} [color-scheme:dark]`}
-                />
-              </Field>
+          {/* Status */}
+          <div className="space-y-1.5">
+            <Label>Status</Label>
+            <div className="flex gap-2">
+              {[
+                { v: "accepted", Icon: CheckCircle2, active: "border-green-500 bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-400" },
+                { v: "rejected", Icon: XCircle,      active: "border-red-500 bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-400" },
+              ].map(({ v, Icon, active }) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, status: v }))}
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-sm font-medium transition-colors
+                    ${form.status === v ? active : "border-input bg-background text-muted-foreground hover:bg-accent"}`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="capitalize">{v}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Feedback */}
-          <div className="mt-4 space-y-3">
-            {submitState.error && (
-              <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-400">
-                ⚠ {submitState.error}
-              </div>
-            )}
-            {submitState.success && (
-              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-400">
-                ✓ Report submitted successfully! Thank you for contributing.
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              disabled={submitState.loading}
-              className="w-full h-11 rounded-xl border border-white/10 bg-white/8 text-white font-semibold hover:bg-white/12 active:scale-95 transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {submitState.loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                  Submitting…
-                </span>
-              ) : (
-                "Submit Report →"
-              )}
-            </Button>
+          {/* Wait time */}
+          <div className="space-y-1.5">
+            <Label htmlFor="r-wait">Wait time (min)</Label>
+            <Input
+              id="r-wait"
+              type="number"
+              placeholder="e.g. 3"
+              min={0}
+              value={form.wait_time}
+              onChange={si("wait_time")}
+              required
+            />
           </div>
+
+          {/* Day */}
+          <div className="space-y-1.5">
+            <Label htmlFor="r-day">Day of week</Label>
+            <Select value={form.day_of_week} onValueChange={sf("day_of_week")}>
+              <SelectTrigger id="r-day" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DAYS.map((day) => (
+                  <SelectItem key={day} value={day}>{day}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Request time */}
+          <div className="space-y-1.5">
+            <Label htmlFor="r-time">Request time</Label>
+            <Input
+              id="r-time"
+              type="datetime-local"
+              value={form.request_time}
+              onChange={si("request_time")}
+              required
+              className="[color-scheme:light] dark:[color-scheme:dark]"
+            />
+          </div>
+
+          <Separator />
+
+          {/* Feedback */}
+          {state.error && (
+            <div className="flex items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              {state.error}
+            </div>
+          )}
+          {state.success && (
+            <div className="flex items-center gap-2 rounded-md border border-green-500/40 bg-green-50 px-3 py-2 text-sm text-green-700 dark:bg-green-950/30 dark:text-green-400">
+              <CircleCheck className="h-4 w-4 shrink-0" />
+              Report submitted — thank you!
+            </div>
+          )}
+
+          <Button type="submit" className="w-full" disabled={state.loading}>
+            {state.loading ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting…</>
+            ) : (
+              <><Send className="mr-2 h-4 w-4" /> Submit report</>
+            )}
+          </Button>
         </form>
       </CardContent>
     </Card>

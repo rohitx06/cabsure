@@ -1,99 +1,69 @@
 // src/components/StatsCard.jsx
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
-function GaugeRing({ pct = 0, color = "#f59e0b" }) {
-  const r = 26;
-  const circ = 2 * Math.PI * r;
-  const dash = (Math.min(pct, 100) / 100) * circ;
-
-  return (
-    <svg width="68" height="68" viewBox="0 0 68 68" className="shrink-0">
-      <circle cx="34" cy="34" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
-      <circle
-        cx="34"
-        cy="34"
-        r={r}
-        fill="none"
-        stroke={color}
-        strokeWidth="5"
-        strokeDasharray={`${dash} ${circ}`}
-        strokeLinecap="round"
-        transform="rotate(-90 34 34)"
-        style={{ transition: "stroke-dasharray 0.9s ease" }}
-      />
-      <text
-        x="34"
-        y="38"
-        textAnchor="middle"
-        fill={color}
-        fontSize="10"
-        fontWeight="700"
-        fontFamily="'DM Mono', monospace"
-      >
-        {pct}%
-      </text>
-    </svg>
-  );
+function TrendIcon({ trend }) {
+  if (trend === "up")   return <TrendingUp   className="h-3.5 w-3.5 text-green-500" />;
+  if (trend === "down") return <TrendingDown  className="h-3.5 w-3.5 text-red-500" />;
+  return <Minus className="h-3.5 w-3.5 text-muted-foreground" />;
 }
 
 /**
  * @param {{
- *   label: string,
- *   value: string | number | null,
- *   sub?: string,
- *   accent?: string,
+ *   title: string,
+ *   value: string|number|null,
+ *   suffix?: string,
+ *   description?: string,
  *   loading?: boolean,
- *   showGauge?: boolean
+ *   icon?: React.ReactNode,
+ *   trend?: "up"|"down"|"neutral",
+ *   badge?: string,          // e.g. "High confidence"
+ *   badgeVariant?: string,   // shadcn badge variant
  * }} props
  */
 export default function StatsCard({
-  label,
+  title,
   value,
-  sub,
-  accent = "#f59e0b",
+  suffix = "",
+  description,
   loading = false,
-  showGauge = false,
+  icon,
+  trend,
+  badge,
+  badgeVariant = "secondary",
 }) {
   return (
-    <Card className="relative overflow-hidden bg-white/4 border-white/8 backdrop-blur-sm rounded-2xl hover:border-white/12 hover:bg-white/6 transition-colors">
-      {/* Top accent line */}
-      <div
-        className="absolute left-0 top-0 h-px w-full"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${accent}66, transparent)`,
-        }}
-      />
-
-      <CardContent className="pt-5 pb-5">
-        <p
-          className="mb-3 text-[10px] uppercase tracking-[0.2em] text-slate-500"
-          style={{ fontFamily: "'DM Mono', monospace" }}
-        >
-          {label}
-        </p>
-
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon && <span className="text-muted-foreground">{icon}</span>}
+      </CardHeader>
+      <CardContent>
         {loading ? (
           <div className="space-y-2">
-            <Skeleton className="h-8 w-24 bg-white/8" />
-            <Skeleton className="h-3 w-16 bg-white/5" />
+            <Skeleton className="h-8 w-24" />
+            <Skeleton className="h-4 w-32" />
           </div>
         ) : (
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p
-                className="text-3xl font-bold tracking-tight text-white"
-                style={{ fontFamily: "'DM Mono', monospace" }}
-              >
-                {value != null ? value : "—"}
-              </p>
-              {sub && (
-                <p className="mt-1 text-xs text-slate-500">{sub}</p>
+          <div className="space-y-1.5">
+            <div className="flex items-end gap-2">
+              <span className="text-2xl font-bold tabular-nums">
+                {value != null ? `${value}${suffix}` : "—"}
+              </span>
+              {trend && <TrendIcon trend={trend} />}
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {description && (
+                <p className="text-xs text-muted-foreground">{description}</p>
+              )}
+              {badge && (
+                <Badge variant={badgeVariant} className="text-[10px] h-4 px-1.5">
+                  {badge}
+                </Badge>
               )}
             </div>
-            {showGauge && (
-              <GaugeRing pct={Number(value) || 0} color={accent} />
-            )}
           </div>
         )}
       </CardContent>
