@@ -7,8 +7,9 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: npm install && npx vite build && cd server && npm install
-    startCommand: cd server && npm start
+    nodeVersion: "20.18.0"
+    buildCommand: "npm install && npm run build && cd server && npm install --production"
+    startCommand: "cd server && node index.js"
     envVars:
       - key: NODE_ENV
         value: production
